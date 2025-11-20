@@ -132,12 +132,12 @@ source .env && ./import-to-crowdsec.sh
 
 **Local installation:**
 ```bash
-cscli decisions list --origin lists
+cscli decisions list --origin cscli-import
 ```
 
 **Docker installation:**
 ```bash
-docker exec crowdsec cscli decisions list --origin lists
+docker exec crowdsec cscli decisions list --origin cscli-import
 ```
 
 ### Automated Import with Cron

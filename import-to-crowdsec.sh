@@ -164,9 +164,9 @@ main() {
     log_info "To view imported decisions, run:"
 
     if [ -n "${DOCKER_CONTAINER_NAME}" ]; then
-        echo "  docker exec ${DOCKER_CONTAINER_NAME} cscli decisions list --origin lists"
+        echo "  docker exec ${DOCKER_CONTAINER_NAME} cscli decisions list --origin cscli-import"
     else
-        echo "  cscli decisions list --origin lists"
+        echo "  cscli decisions list --origin cscli-import"
     fi
 }
 
