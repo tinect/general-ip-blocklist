@@ -53,6 +53,17 @@ TOTAL_ALL=$(wc -l < "${OUTPUT_ALL}")
 # Cleanup
 rm -rf "${TEMP_DIR}"
 
+# Verify that output files are not empty
+if [ "${TOTAL_ALL}" -eq 0 ]; then
+    echo "Error: Combined output file is empty - no IP addresses found"
+    exit 1
+fi
+
+if [ "${TOTAL_IPV4}" -eq 0 ]; then
+    echo "Error: IPv4 output file is empty - no IPv4 addresses found"
+    exit 1
+fi
+
 echo "Done!"
 echo "  IPv4: ${TOTAL_IPV4} addresses -> ${OUTPUT_IPV4}"
 echo "  IPv6: ${TOTAL_IPV6} addresses -> ${OUTPUT_IPV6}"
