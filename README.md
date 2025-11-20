@@ -98,7 +98,7 @@ Available configuration options:
 ### Usage
 
 ```
-curl https://raw.githubusercontent.com/tinect/general-ip-blocklist/refs/heads/main/import-to-crowdsec.sh
+curl -o import-to-crowdsec.sh https://raw.githubusercontent.com/tinect/general-ip-blocklist/refs/heads/main/import-to-crowdsec.sh
 chmod +x import-to-crowdsec.sh
 ```
 
