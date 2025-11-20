@@ -1,0 +1,40 @@
+name: Update IP Blocklists
+
+on:
+  schedule:
+    - cron: '0 */2 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-blocklists:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run blocklist collection script
+        run: |
+          chmod +x collect-ips.sh
+          ./collect-ips.sh
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git diff --exit-code combined-blocklist*.txt || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit and push if changed
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add combined-blocklist*.txt
+          git commit -m "chore: Auto-update blocklists $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          git push
+
+      - name: No changes detected
+        if: steps.check_changes.outputs.changed != 'true'
+        run: echo "No changes to blocklist files"
