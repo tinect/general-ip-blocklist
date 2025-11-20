@@ -1,8 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 
 # Script to collect and combine IP addresses from multiple blocklists
+# POSIX sh compatible
 
-set -euo pipefail
+set -eu
 
 # Configuration
 OUTPUT_IPV4="combined-blocklist-ipv4.txt"
@@ -10,18 +11,18 @@ OUTPUT_IPV6="combined-blocklist-ipv6.txt"
 OUTPUT_ALL="combined-blocklist.txt"
 TEMP_DIR=$(mktemp -d)
 
-# URLs to fetch
-URLS=(
-    "https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/refs/heads/main/abuseipdb-s100-7d.ipv4"
-    "https://ipbl.herrbischoff.com/list.txt"
-)
+# URLs to fetch (space-separated)
+URL_1="https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/refs/heads/main/abuseipdb-s100-7d.ipv4"
+URL_2="https://ipbl.herrbischoff.com/list.txt"
 
 echo "Fetching IP blocklists..."
 
 # Download all lists
-for i in "${!URLS[@]}"; do
-    echo "Downloading list $((i+1))/${#URLS[@]}: ${URLS[$i]}"
-    curl -sS "${URLS[$i]}" > "${TEMP_DIR}/list_${i}.txt" || true
+i=1
+for url in "$URL_1" "$URL_2"; do
+    echo "Downloading list ${i}/2: ${url}"
+    curl -sS "${url}" > "${TEMP_DIR}/list_${i}.txt" || true
+    i=$((i + 1))
 done
 
 echo "Processing and combining IP addresses..."

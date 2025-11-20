@@ -18,7 +18,7 @@ The script fetches IP addresses from the following sources:
 
 ## Requirements
 
-- `bash` (4.0 or later)
+- POSIX-compliant shell (`sh`, `bash`, `dash`, etc.)
 - `curl`
 - `grep`
 - Standard Unix utilities (`sort`, `cat`, `wc`)
@@ -54,6 +54,7 @@ Done!
 
 ## Features
 
+- **POSIX-compliant**: Works with any POSIX shell (sh, bash, dash, etc.)
 - **Automatic deduplication**: All IP addresses are unique
 - **Multi-source aggregation**: Combines multiple trusted sources
 - **Separate IPv4/IPv6 lists**: Choose the format you need
@@ -67,6 +68,122 @@ Done!
 - Intrusion detection/prevention systems
 - Network monitoring tools
 - Application-level IP blocking
+- **CrowdSec integration** (automated import into CrowdSec decisions)
+
+## CrowdSec Integration
+
+The `import-to-crowdsec.sh` script automatically downloads the blocklist and imports it into CrowdSec decisions, blocking malicious IPs at the system level.
+
+### Requirements
+
+- CrowdSec installed (local or Docker)
+- `cscli` command-line tool (included with CrowdSec)
+- `curl` for downloading blocklists
+
+### Configuration
+
+Create a `.env` file (optional) to customize the import behavior:
+
+```bash
+cp .env.example .env
+```
+
+Available configuration options:
+
+- **`BAN_DURATION`**: How long IPs should be banned (default: `24h`)
+  - Examples: `1h`, `12h`, `24h`, `7d`, `30d`
+- **`BAN_REASON`**: Reason displayed in CrowdSec (default: `general-ip-blocklist`)
+- **`CROWDSEC_DOCKER_CONTAINER`**: Docker container name if CrowdSec runs in Docker (leave empty for local installation)
+
+### Usage
+
+```
+curl https://raw.githubusercontent.com/tinect/general-ip-blocklist/refs/heads/main/import-to-crowdsec.sh
+chmod +x import-to-crowdsec.sh
+```
+
+#### Local CrowdSec Installation
+
+```bash
+./import-to-crowdsec.sh
+```
+
+#### Docker Installation
+
+Set the container name and run:
+
+```bash
+export CROWDSEC_DOCKER_CONTAINER=crowdsec
+./import-to-crowdsec.sh
+```
+
+Or use the `.env` file:
+
+```bash
+# In .env file
+CROWDSEC_DOCKER_CONTAINER=crowdsec
+```
+
+```bash
+source .env && ./import-to-crowdsec.sh
+```
+
+### Viewing Imported Decisions
+
+**Local installation:**
+```bash
+cscli decisions list --origin lists
+```
+
+**Docker installation:**
+```bash
+docker exec crowdsec cscli decisions list --origin lists
+```
+
+### Automated Import with Cron
+
+To keep your CrowdSec decisions up-to-date, schedule the import script:
+
+**Option 1: Using local script**
+```bash
+# Edit crontab
+crontab -e
+
+# Add this line to run daily at 3 AM
+0 3 * * * /bin/sh /path/to/unwanted-ip-addresses/import-to-crowdsec.sh >> /var/log/crowdsec-import.log 2>&1
+```
+
+**Option 2: Using one-liner (always downloads latest version)**
+```bash
+# Edit crontab
+crontab -e
+
+# For local CrowdSec
+0 3 * * * curl -fsSL https://raw.githubusercontent.com/tinect/general-ip-blocklist/refs/heads/main/import-to-crowdsec.sh | sh >> /var/log/crowdsec-import.log 2>&1
+
+# For Docker CrowdSec
+0 3 * * * curl -fsSL https://raw.githubusercontent.com/tinect/general-ip-blocklist/refs/heads/main/import-to-crowdsec.sh | CROWDSEC_DOCKER_CONTAINER=crowdsec sh >> /var/log/crowdsec-import.log 2>&1
+```
+
+### How It Works
+
+1. Downloads the latest `combined-blocklist.txt` from this repository
+2. Converts IP addresses to CrowdSec JSON decision format
+3. Imports decisions using `cscli decisions import`
+4. Automatically handles both local and Docker CrowdSec installations
+
+### Troubleshooting
+
+**"cscli command not found"**
+- Ensure CrowdSec is installed or set `CROWDSEC_DOCKER_CONTAINER`
+
+**"Docker container not running"**
+- Verify the container name: `docker ps`
+- Update `CROWDSEC_DOCKER_CONTAINER` with the correct name
+
+**"Failed to import decisions"**
+- Check CrowdSec is running: `systemctl status crowdsec` (local) or `docker ps` (Docker)
+- Verify you have appropriate permissions to run `cscli`
 
 ## Automatic Updates
 
