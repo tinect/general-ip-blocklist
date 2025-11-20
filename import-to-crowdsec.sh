@@ -97,7 +97,6 @@ create_decisions_json() {
         cat >> "${DECISIONS_FILE}" << EOF
   {
     "duration": "${BAN_DURATION}",
-    "origin": "lists",
     "reason": "${BAN_REASON}",
     "scope": "ip",
     "type": "ban",
