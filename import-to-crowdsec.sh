@@ -8,7 +8,7 @@ set -eu
 
 # Configuration
 BLOCKLIST_URL="https://raw.githubusercontent.com/tinect/general-ip-blocklist/refs/heads/main/combined-blocklist.txt"
-BAN_DURATION="${BAN_DURATION:-24h}"
+BAN_DURATION="${BAN_DURATION:-24h30s}"
 BAN_REASON="${BAN_REASON:-general-ip-blocklist}"
 DOCKER_CONTAINER_NAME="${CROWDSEC_DOCKER_CONTAINER:-}"
 TEMP_DIR=$(mktemp -d)
