@@ -2,7 +2,7 @@ name: Update IP Blocklists
 
 on:
   schedule:
-    - cron: '0 */2 * * *'
+    - cron: '0 */4 * * *'
   workflow_dispatch:
 
 jobs:
@@ -29,10 +29,15 @@ jobs:
       - name: Commit and push if changed
         if: steps.check_changes.outputs.changed == 'true'
         run: |
+          # Get diff stats for combined-blocklist.txt
+          DIFF_STATS=$(git diff --numstat combined-blocklist.txt)
+          ADDED=$(echo "$DIFF_STATS" | awk '{print $1}')
+          REMOVED=$(echo "$DIFF_STATS" | awk '{print $2}')
+
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add combined-blocklist*.txt
-          git commit -m "chore: Auto-update blocklists $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          git commit -m "chore: Auto-update blocklists (+${ADDED} -${REMOVED}) $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
           git push
 
       - name: No changes detected
