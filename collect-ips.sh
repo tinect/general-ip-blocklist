@@ -9,6 +9,8 @@ set -eu
 OUTPUT_IPV4="combined-blocklist-ipv4.txt"
 OUTPUT_IPV6="combined-blocklist-ipv6.txt"
 OUTPUT_ALL="combined-blocklist.txt"
+OUTPUT_IPV4_AGG="combined-blocklist-ipv4-aggregated.txt"
+OUTPUT_ALL_AGG="combined-blocklist-aggregated.txt"
 TEMP_DIR=$(mktemp -d)
 
 # URLs to fetch (space-separated)
@@ -50,6 +52,22 @@ TOTAL_IPV4=$(wc -l < "${OUTPUT_IPV4}")
 TOTAL_IPV6=$(wc -l < "${OUTPUT_IPV6}")
 TOTAL_ALL=$(wc -l < "${OUTPUT_ALL}")
 
+echo "Aggregating IP addresses into CIDR blocks..."
+
+# Aggregate IPv4 addresses (requires 'aggregate' tool)
+TOTAL_IPV4_AGG=0
+if command -v aggregate >/dev/null 2>&1; then
+    aggregate -p 32 -t < "${OUTPUT_IPV4}" > "${OUTPUT_IPV4_AGG}"
+    TOTAL_IPV4_AGG=$(wc -l < "${OUTPUT_IPV4_AGG}")
+    echo "  IPv4 aggregated: ${TOTAL_IPV4} -> ${TOTAL_IPV4_AGG} CIDR blocks"
+else
+    echo "  Warning: 'aggregate' tool not found, skipping IPv4 aggregation"
+fi
+
+# Combine aggregated lists
+cat "${OUTPUT_IPV4_AGG}" "${OUTPUT_IPV6}" > "${OUTPUT_ALL_AGG}"
+TOTAL_ALL_AGG=$(wc -l < "${OUTPUT_ALL_AGG}")
+
 # Cleanup
 rm -rf "${TEMP_DIR}"
 
@@ -65,6 +83,12 @@ if [ "${TOTAL_IPV4}" -eq 0 ]; then
 fi
 
 echo "Done!"
+echo ""
+echo "Non-aggregated lists:"
 echo "  IPv4: ${TOTAL_IPV4} addresses -> ${OUTPUT_IPV4}"
 echo "  IPv6: ${TOTAL_IPV6} addresses -> ${OUTPUT_IPV6}"
 echo "  Total: ${TOTAL_ALL} addresses -> ${OUTPUT_ALL}"
+echo ""
+echo "Aggregated lists (CIDR blocks):"
+echo "  IPv4: ${TOTAL_IPV4_AGG} blocks -> ${OUTPUT_IPV4_AGG}"
+echo "  Total: ${TOTAL_ALL_AGG} blocks -> ${OUTPUT_ALL_AGG}"
