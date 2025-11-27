@@ -18,7 +18,7 @@ jobs:
 
       - name: Run blocklist collection script
         run: |
-          apt install -y aggregate
+          apt-get install -y aggregate
           chmod +x collect-ips.sh
           ./collect-ips.sh
 
