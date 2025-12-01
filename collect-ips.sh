@@ -10,22 +10,53 @@ OUTPUT_IPV4="combined-blocklist-ipv4.txt"
 OUTPUT_IPV6="combined-blocklist-ipv6.txt"
 OUTPUT_ALL="combined-blocklist.txt"
 OUTPUT_IPV4_AGG="combined-blocklist-ipv4-aggregated.txt"
-OUTPUT_ALL_AGG="combined-blocklist-aggregated.txt"
 TEMP_DIR=$(mktemp -d)
 
 # URLs to fetch (space-separated)
 URL_1="https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/refs/heads/main/abuseipdb-s100-7d.ipv4"
 URL_2="https://ipbl.herrbischoff.com/list.txt"
+URL_3="https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/botscout_7d.ipset"
+URL_4="https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/greensnow.ipset"
 
 echo "Fetching IP blocklists..."
 
 # Download all lists
 i=1
-for url in "$URL_1" "$URL_2"; do
-    echo "Downloading list ${i}/2: ${url}"
-    curl -sS "${url}" > "${TEMP_DIR}/list_${i}.txt" || true
+successful_downloads=0
+total_lists=4
+for url in "$URL_1" "$URL_2" "$URL_3" "$URL_4"; do
+    echo "Downloading list ${i}/${total_lists}: ${url}"
+
+    # Download the list
+    if curl -sS "${url}" > "${TEMP_DIR}/list_${i}.txt"; then
+        # Check if file has content
+        if [ -s "${TEMP_DIR}/list_${i}.txt" ]; then
+            # Check if file contains at least one IP address
+            if grep -qoE '([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}' "${TEMP_DIR}/list_${i}.txt"; then
+                echo "  ✓ Downloaded and validated"
+                successful_downloads=$((successful_downloads + 1))
+            else
+                echo "  ⚠ Warning: File downloaded but contains no IP addresses"
+            fi
+        else
+            echo "  ⚠ Warning: Downloaded file is empty"
+        fi
+    else
+        echo "  ✗ Error: Failed to download"
+        # Create empty file to prevent errors in later processing
+        touch "${TEMP_DIR}/list_${i}.txt"
+    fi
+
     i=$((i + 1))
 done
+
+echo ""
+echo "Download summary: ${successful_downloads}/${total_lists} lists successfully downloaded"
+
+if [ "${successful_downloads}" -ne "${total_lists}" ]; then
+    echo "Error: Not all blocklists were successfully downloaded"
+    exit 1
+fi
 
 echo "Processing and combining IP addresses..."
 
@@ -64,10 +95,6 @@ else
     echo "  Warning: 'aggregate' tool not found, skipping IPv4 aggregation"
 fi
 
-# Combine aggregated lists
-cat "${OUTPUT_IPV4_AGG}" "${OUTPUT_IPV6}" > "${OUTPUT_ALL_AGG}"
-TOTAL_ALL_AGG=$(wc -l < "${OUTPUT_ALL_AGG}")
-
 # Cleanup
 rm -rf "${TEMP_DIR}"
 
@@ -91,4 +118,3 @@ echo "  Total: ${TOTAL_ALL} addresses -> ${OUTPUT_ALL}"
 echo ""
 echo "Aggregated lists (CIDR blocks):"
 echo "  IPv4: ${TOTAL_IPV4_AGG} blocks -> ${OUTPUT_IPV4_AGG}"
-echo "  Total: ${TOTAL_ALL_AGG} blocks -> ${OUTPUT_ALL_AGG}"

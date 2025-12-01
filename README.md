@@ -16,6 +16,12 @@ The script fetches IP addresses from the following sources:
 2. **Herrbischoff IP Blocklist** - Curated list of malicious IP addresses (IPv4 and IPv6)
    - `https://ipbl.herrbischoff.com/list.txt`
 
+3. **Botscout 7d** - IPs from bot/spam activity in the last 7 days (FireHOL)
+   - `https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/botscout_7d.ipset`
+
+4. **GreenSnow** - Malicious IPs tracked by GreenSnow (FireHOL)
+   - `https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/greensnow.ipset`
+
 ## Requirements
 
 - POSIX-compliant shell (`sh`, `bash`, `dash`, etc.)
@@ -43,8 +49,10 @@ The script generates three files:
 
 ```
 Fetching IP blocklists...
-Downloading list 1/2: https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/...
-Downloading list 2/2: https://ipbl.herrbischoff.com/list.txt
+Downloading list 1/4: https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/...
+Downloading list 2/4: https://ipbl.herrbischoff.com/list.txt
+Downloading list 3/4: https://raw.githubusercontent.com/firehol/blocklist-ipsets/...botscout_7d.ipset
+Downloading list 4/4: https://raw.githubusercontent.com/firehol/blocklist-ipsets/...greensnow.ipset
 Processing and combining IP addresses...
 Done!
   IPv4: 72130 addresses -> combined-blocklist-ipv4.txt
