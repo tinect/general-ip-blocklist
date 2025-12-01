@@ -22,6 +22,18 @@ The script fetches IP addresses from the following sources:
 4. **GreenSnow** - Malicious IPs tracked by GreenSnow (FireHOL)
    - `https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/greensnow.ipset`
 
+5. **Cybercrime** - IPs associated with cybercrime activities (FireHOL)
+   - `https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/cybercrime.ipset`
+
+6. **Blocklist.de SSH** - IPs involved in SSH brute-force attacks
+   - `https://lists.blocklist.de/lists/ssh.txt`
+
+7. **Blocklist.de StrongIPs** - IPs with multiple attack attempts across different services
+   - `https://lists.blocklist.de/lists/strongips.txt`
+
+8. **Blocklist.de Brute-force Login** - IPs attempting brute-force login attacks
+   - `https://lists.blocklist.de/lists/bruteforcelogin.txt`
+
 ## Requirements
 
 - POSIX-compliant shell (`sh`, `bash`, `dash`, etc.)
@@ -49,10 +61,14 @@ The script generates three files:
 
 ```
 Fetching IP blocklists...
-Downloading list 1/4: https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/...
-Downloading list 2/4: https://ipbl.herrbischoff.com/list.txt
-Downloading list 3/4: https://raw.githubusercontent.com/firehol/blocklist-ipsets/...botscout_7d.ipset
-Downloading list 4/4: https://raw.githubusercontent.com/firehol/blocklist-ipsets/...greensnow.ipset
+Downloading list 1/8: https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/...
+Downloading list 2/8: https://ipbl.herrbischoff.com/list.txt
+Downloading list 3/8: https://raw.githubusercontent.com/firehol/blocklist-ipsets/...botscout_7d.ipset
+Downloading list 4/8: https://raw.githubusercontent.com/firehol/blocklist-ipsets/...greensnow.ipset
+Downloading list 5/8: https://raw.githubusercontent.com/firehol/blocklist-ipsets/...cybercrime.ipset
+Downloading list 6/8: https://lists.blocklist.de/lists/ssh.txt
+Downloading list 7/8: https://lists.blocklist.de/lists/strongips.txt
+Downloading list 8/8: https://lists.blocklist.de/lists/bruteforcelogin.txt
 Processing and combining IP addresses...
 Done!
   IPv4: 72130 addresses -> combined-blocklist-ipv4.txt

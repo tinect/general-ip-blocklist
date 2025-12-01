@@ -17,14 +17,18 @@ URL_1="https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/refs/heads
 URL_2="https://ipbl.herrbischoff.com/list.txt"
 URL_3="https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/botscout_7d.ipset"
 URL_4="https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/greensnow.ipset"
+URL_5="https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/cybercrime.ipset"
+URL_6="https://lists.blocklist.de/lists/ssh.txt"
+URL_7="https://lists.blocklist.de/lists/strongips.txt"
+URL_8="https://lists.blocklist.de/lists/bruteforcelogin.txt"
 
 echo "Fetching IP blocklists..."
 
 # Download all lists
 i=1
 successful_downloads=0
-total_lists=4
-for url in "$URL_1" "$URL_2" "$URL_3" "$URL_4"; do
+total_lists=8
+for url in "$URL_1" "$URL_2" "$URL_3" "$URL_4" "$URL_5" "$URL_6" "$URL_7" "$URL_8"; do
     echo "Downloading list ${i}/${total_lists}: ${url}"
 
     # Download the list
