@@ -12,7 +12,7 @@ BAN_DURATION="${BAN_DURATION:-24h30s}"
 BAN_REASON="${BAN_REASON:-general-ip-blocklist}"
 DOCKER_CONTAINER_NAME="${CROWDSEC_DOCKER_CONTAINER:-}"
 TEMP_DIR=$(mktemp -d)
-DECISIONS_FILE="${TEMP_DIR}/decisions.json"
+DECISIONS_FILE="${TEMP_DIR}/decisions.csv"
 BLOCKLIST_FILE="${TEMP_DIR}/blocklist.txt"
 
 # Colors for output
@@ -72,13 +72,15 @@ download_blocklist() {
     log_info "Downloaded ${total_ips} IP addresses"
 }
 
-# Convert blocklist to CrowdSec JSON format
-create_decisions_json() {
-    log_info "Creating CrowdSec decisions JSON..."
+# Convert blocklist to CrowdSec CSV format
+create_decisions_csv() {
+    log_info "Creating CrowdSec decisions CSV..."
 
-    echo "[" > "${DECISIONS_FILE}"
+    # Write CSV header
+    echo "duration,reason,scope,type,value" > "${DECISIONS_FILE}"
 
-    first=true
+    # Process each IP address
+    entry_count=0
     while IFS= read -r ip; do
         # Skip empty lines and comments
         [ -z "${ip}" ] && continue
@@ -86,29 +88,12 @@ create_decisions_json() {
             \#*) continue ;;
         esac
 
-        # Add comma before all entries except the first
-        if [ "${first}" = true ]; then
-            first=false
-        else
-            echo "," >> "${DECISIONS_FILE}"
-        fi
-
-        # Create JSON decision entry
-        cat >> "${DECISIONS_FILE}" << EOF
-  {
-    "duration": "${BAN_DURATION}",
-    "reason": "${BAN_REASON}",
-    "scope": "ip",
-    "type": "ban",
-    "value": "${ip}"
-  }
-EOF
+        # Add CSV row
+        echo "${BAN_DURATION},${BAN_REASON},ip,ban,${ip}" >> "${DECISIONS_FILE}"
+        entry_count=$((entry_count + 1))
     done < "${BLOCKLIST_FILE}"
 
-    echo "" >> "${DECISIONS_FILE}"
-    echo "]" >> "${DECISIONS_FILE}"
-
-    log_info "Created decisions file with $(grep -c '"value"' "${DECISIONS_FILE}") entries"
+    log_info "Created decisions file with ${entry_count} entries"
 }
 
 # Import decisions into CrowdSec
@@ -117,11 +102,11 @@ import_decisions() {
 
     if [ -n "${DOCKER_CONTAINER_NAME}" ]; then
         # Docker mode: copy file and execute inside container
-        docker cp "${DECISIONS_FILE}" "${DOCKER_CONTAINER_NAME}:/tmp/decisions.json"
+        docker cp "${DECISIONS_FILE}" "${DOCKER_CONTAINER_NAME}:/tmp/decisions.csv"
 
-        if docker exec "${DOCKER_CONTAINER_NAME}" cscli decisions import -i /tmp/decisions.json; then
+        if docker exec "${DOCKER_CONTAINER_NAME}" cscli decisions import -i /tmp/decisions.csv; then
             log_info "Successfully imported decisions via Docker"
-            docker exec "${DOCKER_CONTAINER_NAME}" rm /tmp/decisions.json
+            docker exec "${DOCKER_CONTAINER_NAME}" rm /tmp/decisions.csv
         else
             log_error "Failed to import decisions via Docker"
             exit 1
@@ -157,7 +142,7 @@ main() {
 
     check_crowdsec_environment
     download_blocklist
-    create_decisions_json
+    create_decisions_csv
     import_decisions
 
     log_info "Import completed successfully!"

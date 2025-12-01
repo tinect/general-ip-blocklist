@@ -168,7 +168,7 @@ crontab -e
 ### How It Works
 
 1. Downloads the latest `combined-blocklist.txt` from this repository
-2. Converts IP addresses to CrowdSec JSON decision format
+2. Converts IP addresses to CrowdSec CSV decision format
 3. Imports decisions using `cscli decisions import`
 4. Automatically handles both local and Docker CrowdSec installations
 
