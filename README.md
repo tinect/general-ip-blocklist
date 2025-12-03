@@ -19,8 +19,8 @@ The script fetches IP addresses from the following sources:
 3. **Botscout 7d** - IPs from bot/spam activity in the last 7 days (FireHOL)
    - `https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/botscout_7d.ipset`
 
-4. **GreenSnow** - Malicious IPs tracked by GreenSnow (FireHOL)
-   - `https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/greensnow.ipset`
+4. **GreenSnow** - Malicious IPs tracked by GreenSnow
+   - `https://blocklist.greensnow.co/greensnow.txt`
 
 5. **Cybercrime** - IPs associated with cybercrime activities (FireHOL)
    - `https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/cybercrime.ipset`
@@ -64,7 +64,7 @@ Fetching IP blocklists...
 Downloading list 1/8: https://raw.githubusercontent.com/borestad/blocklist-abuseipdb/...
 Downloading list 2/8: https://ipbl.herrbischoff.com/list.txt
 Downloading list 3/8: https://raw.githubusercontent.com/firehol/blocklist-ipsets/...botscout_7d.ipset
-Downloading list 4/8: https://raw.githubusercontent.com/firehol/blocklist-ipsets/...greensnow.ipset
+Downloading list 4/8: https://blocklist.greensnow.co/greensnow.txt
 Downloading list 5/8: https://raw.githubusercontent.com/firehol/blocklist-ipsets/...cybercrime.ipset
 Downloading list 6/8: https://lists.blocklist.de/lists/ssh.txt
 Downloading list 7/8: https://lists.blocklist.de/lists/strongips.txt
