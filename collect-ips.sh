@@ -79,13 +79,9 @@ cat "${TEMP_DIR}"/list_*.txt | \
     grep ':' | \
     sort -u > "${OUTPUT_IPV6}"
 
-# Combine both IPv4 and IPv6
-cat "${OUTPUT_IPV4}" "${OUTPUT_IPV6}" > "${OUTPUT_ALL}"
-
 # Count results
 TOTAL_IPV4=$(wc -l < "${OUTPUT_IPV4}")
 TOTAL_IPV6=$(wc -l < "${OUTPUT_IPV6}")
-TOTAL_ALL=$(wc -l < "${OUTPUT_ALL}")
 
 echo "Aggregating IP addresses into CIDR blocks..."
 
@@ -95,9 +91,17 @@ if command -v aggregate >/dev/null 2>&1; then
     sed 's|^\([0-9.]*\)$|\1/32|' "${OUTPUT_IPV4}" | aggregate -t > "${OUTPUT_IPV4_AGG}"
     TOTAL_IPV4_AGG=$(wc -l < "${OUTPUT_IPV4_AGG}")
     echo "  IPv4 aggregated: ${TOTAL_IPV4} -> ${TOTAL_IPV4_AGG} CIDR blocks"
+    
+    # Combine aggregated IPv4 and IPv6
+    cat "${OUTPUT_IPV4_AGG}" "${OUTPUT_IPV6}" > "${OUTPUT_ALL}"
 else
-    echo "  Warning: 'aggregate' tool not found, skipping IPv4 aggregation"
+    echo "  Warning: 'aggregate' tool not found, using non-aggregated IPv4"
+    # Fallback to non-aggregated IPv4 if aggregate tool not available
+    cat "${OUTPUT_IPV4}" "${OUTPUT_IPV6}" > "${OUTPUT_ALL}"
 fi
+
+# Count final combined results
+TOTAL_ALL=$(wc -l < "${OUTPUT_ALL}")
 
 # Cleanup
 rm -rf "${TEMP_DIR}"
