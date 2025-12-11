@@ -21,14 +21,15 @@ URL_5="https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/mas
 URL_6="https://lists.blocklist.de/lists/ssh.txt"
 URL_7="https://lists.blocklist.de/lists/strongips.txt"
 URL_8="https://lists.blocklist.de/lists/bruteforcelogin.txt"
+URL_9="https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/tor_exits_7d.ipset"
 
 echo "Fetching IP blocklists..."
 
 # Download all lists
 i=1
 successful_downloads=0
-total_lists=8
-for url in "$URL_1" "$URL_2" "$URL_3" "$URL_4" "$URL_5" "$URL_6" "$URL_7" "$URL_8"; do
+total_lists=9
+for url in "$URL_1" "$URL_2" "$URL_3" "$URL_4" "$URL_5" "$URL_6" "$URL_7" "$URL_8" "$URL_9"; do
     echo "Downloading list ${i}/${total_lists}: ${url}"
 
     # Download the list
