@@ -36,7 +36,7 @@ for url in "$URL_1" "$URL_2" "$URL_3" "$URL_4" "$URL_5" "$URL_6" "$URL_7" "$URL_
         # Check if file has content
         if [ -s "${TEMP_DIR}/list_${i}.txt" ]; then
             # Check if file contains at least one IP address
-            if grep -qoE '([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}' "${TEMP_DIR}/list_${i}.txt"; then
+            if grep -qoE '([0-9]{1,3}\.){3}[0-9]{1,3}(/[0-9]{1,2})?|([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}(/[0-9]{1,3})?' "${TEMP_DIR}/list_${i}.txt"; then
                 echo "  ✓ Downloaded and validated"
                 successful_downloads=$((successful_downloads + 1))
             else
@@ -68,14 +68,14 @@ echo "Processing and combining IP addresses..."
 cat "${TEMP_DIR}"/list_*.txt | \
     grep -v '^#' | \
     grep -v '^$' | \
-    grep -oE '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' | \
+    grep -oE '\b([0-9]{1,3}\.){3}[0-9]{1,3}(/[0-9]{1,2})?\b' | \
     sort -u -V > "${OUTPUT_IPV4}"
 
 # Extract IPv6 addresses
 cat "${TEMP_DIR}"/list_*.txt | \
     grep -v '^#' | \
     grep -v '^$' | \
-    grep -oE '([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}' | \
+    grep -oE '([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}(/[0-9]{1,3})?' | \
     grep ':' | \
     sort -u > "${OUTPUT_IPV6}"
 
@@ -92,7 +92,7 @@ echo "Aggregating IP addresses into CIDR blocks..."
 # Aggregate IPv4 addresses (requires 'aggregate' tool)
 TOTAL_IPV4_AGG=0
 if command -v aggregate >/dev/null 2>&1; then
-    aggregate -p 32 -t < "${OUTPUT_IPV4}" > "${OUTPUT_IPV4_AGG}"
+    sed 's|^\([0-9.]*\)$|\1/32|' "${OUTPUT_IPV4}" | aggregate -t > "${OUTPUT_IPV4_AGG}"
     TOTAL_IPV4_AGG=$(wc -l < "${OUTPUT_IPV4_AGG}")
     echo "  IPv4 aggregated: ${TOTAL_IPV4} -> ${TOTAL_IPV4_AGG} CIDR blocks"
 else
