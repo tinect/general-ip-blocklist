@@ -34,6 +34,12 @@ The script fetches IP addresses from the following sources:
 8. **Blocklist.de Brute-force Login** - IPs attempting brute-force login attacks
    - `https://lists.blocklist.de/lists/bruteforcelogin.txt`
 
+9. **TorProject** - all current TOR exit points
+   - `https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/tor_exits_7d.ipset`
+
+10. **Emerging Threats fwip rules** - IPs spam and attack sources
+    - `https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt`
+
 ## Requirements
 
 - POSIX-compliant shell (`sh`, `bash`, `dash`, etc.)
