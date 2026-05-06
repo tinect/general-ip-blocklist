@@ -66,19 +66,21 @@ fi
 
 echo "Processing and combining IP addresses..."
 
-# Extract IPv4 addresses
+# Extract IPv4 addresses, excluding RFC 1918 private ranges
 cat "${TEMP_DIR}"/list_*.txt | \
     grep -v '^#' | \
     grep -v '^$' | \
     grep -oE '\b([0-9]{1,3}\.){3}[0-9]{1,3}(/[0-9]{1,2})?\b' | \
+    grep -vE '^(10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)' | \
     sort -u -V > "${OUTPUT_IPV4}"
 
-# Extract IPv6 addresses
+# Extract IPv6 addresses, excluding ULA ranges (fc00::/7 = fc** and fd**)
 cat "${TEMP_DIR}"/list_*.txt | \
     grep -v '^#' | \
     grep -v '^$' | \
     grep -oE '([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}(/[0-9]{1,3})?' | \
     grep ':' | \
+    grep -viE '^f[cd]' | \
     sort -u > "${OUTPUT_IPV6}"
 
 # Count results
